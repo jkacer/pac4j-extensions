@@ -27,6 +27,7 @@ import com.idc.webchannel.pac4j.extensions.saml.dao.api.SamlClientDao;
  * <li>ENVIRONMENT VARCHAR2 - Application environment to which this client configuration applies</li>
  * <li>KEYSTORE_DATA BLOB - JKS binary data; replacement of a JKS file on disk</li>
  * <li>KEYSTORE_PASSWORD - Password for the JKS keystore</li>
+ * <li>KEYSTORE_ALIAS - Alias for the private key entry in the keystore</li>
  * <li>PRIVATE_KEY_PASSWORD VARCHAR2 - Password for a single alias (private key) in the JKS keystore</li>
  * <li>IDP_METADATA CLOB - IdP metadata in XML format</li>
  * <li>IDP_ENTITY_ID VARCHAR2 - IdP entity ID</li>
@@ -45,6 +46,7 @@ CREATE TABLE SAG_SAML_PAC4J_CLIENT_CFG
   ENVIRONMENT VARCHAR2(20 CHAR) NOT NULL,
   KEYSTORE_DATA BLOB NOT NULL,
   KEYSTORE_PASSWORD VARCHAR2(50 CHAR),
+  KEYSTORE_ALIAS VARCHAR2(20 CHAR),
   PRIVATE_KEY_PASSWORD VARCHAR2(50 CHAR),
   IDP_METADATA CLOB NOT NULL,
   IDP_ENTITY_ID VARCHAR2(200 CHAR) NOT NULL,
@@ -60,6 +62,7 @@ COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.CLIENT_NAME IS 'PAC4J client name; u
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.ENVIRONMENT IS 'Application environment to which this client config applies';
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.KEYSTORE_DATA IS 'JKS binary data; replacement of a JKS file on disk';
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.KEYSTORE_PASSWORD IS 'Password for the JKS keystore';
+COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.KEYSTORE_ALIAS IS 'Alias for the private key entry in the keystore';
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.PRIVATE_KEY_PASSWORD IS 'Password for a single alias (private key) in the JKS keystore';
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.IDP_METADATA IS 'IdP metadata in XML format';
 COMMENT ON COLUMN SAG_SAML_PAC4J_CLIENT_CFG.IDP_ENTITY_ID IS 'IdP entity ID';
@@ -82,9 +85,9 @@ public class SpringJdbcTemplateSamlClientDaoImpl implements SamlClientDao {
 	/** SQL text of the query to select all client names. */
 	private static final String SELECT_ALL_NAMES_SQL_TEXT = "select Client_Name from %s where Environment = ?";
 	/** SQL text of the query to select all existing clients. */
-	private static final String SELECT_ALL_CLIENTS_SQL_TEXT = "select Client_Name, Environment, Keystore_Data, Keystore_Password, Private_Key_Password, IdP_Metadata, IdP_Entity_ID, SP_Entity_ID, Max_Auth_Lifetime, Dest_Binding_Type from %s where Environment = ?";
+	private static final String SELECT_ALL_CLIENTS_SQL_TEXT = "select Client_Name, Environment, Keystore_Data, Keystore_Password, Keystore_Alias, Private_Key_Password, IdP_Metadata, IdP_Entity_ID, SP_Entity_ID, Max_Auth_Lifetime, Dest_Binding_Type from %s where Environment = ?";
 	/** SQL text of the query to select a single client by name. */
-	private static final String SELECT_SINGLE_CLIENT_SQL_TEXT = "select Client_Name, Environment, Keystore_Data, Keystore_Password, Private_Key_Password, IdP_Metadata, IdP_Entity_ID, SP_Entity_ID, Max_Auth_Lifetime, Dest_Binding_Type from %s where (Environment = ?) and (Client_Name = ?)";
+	private static final String SELECT_SINGLE_CLIENT_SQL_TEXT = "select Client_Name, Environment, Keystore_Data, Keystore_Password, Keystore_Alias, Private_Key_Password, IdP_Metadata, IdP_Entity_ID, SP_Entity_ID, Max_Auth_Lifetime, Dest_Binding_Type from %s where (Environment = ?) and (Client_Name = ?)";
 	
 	/** Row mapper to read configuration rows and convert them to client names. */
 	private final OnlyNamesRowMapper onlyNamesRowMapper;
@@ -236,6 +239,7 @@ public class SpringJdbcTemplateSamlClientDaoImpl implements SamlClientDao {
 			String environment = rs.getString("Environment");
 			byte[] keystoreBinaryData = lobHandler.getBlobAsBytes(rs, "Keystore_Data");
 			String keystorePassword = rs.getString("Keystore_Password");
+			String keystoreAlias = rs.getString("Keystore_Alias");
 			String privateKeyPassword = rs.getString("Private_Key_Password");
 			String identityProviderMetadata = lobHandler.getClobAsString(rs, "IdP_Metadata");
 			String identityProviderEntityId = rs.getString("IdP_Entity_ID");
@@ -248,6 +252,7 @@ public class SpringJdbcTemplateSamlClientDaoImpl implements SamlClientDao {
 			config.setEnvironment(environment);
 			config.setKeystoreBinaryData(keystoreBinaryData);
 			config.setKeystorePassword(keystorePassword);
+			config.setKeystoreAlias(keystoreAlias);
 			config.setPrivateKeyPassword(privateKeyPassword);
 			config.setIdentityProviderMetadata(identityProviderMetadata);
 			config.setIdentityProviderEntityId(identityProviderEntityId);

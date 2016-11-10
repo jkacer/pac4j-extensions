@@ -13,6 +13,7 @@ public class DbLoadedSamlClientConfigurationDto {
 	private String environment;
 	private byte[] keystoreBinaryData;
     private String keystorePassword;
+    private String keystoreAlias;
     private String privateKeyPassword;
     private String identityProviderMetadata;
     private String identityProviderEntityId;
@@ -44,6 +45,12 @@ public class DbLoadedSamlClientConfigurationDto {
 	}
 	public void setKeystorePassword(String keystorePassword) {
 		this.keystorePassword = keystorePassword;
+	}
+	public String getKeystoreAlias() {
+		return keystoreAlias;
+	}
+	public void setKeystoreAlias(String keystoreAlias) {
+		this.keystoreAlias = keystoreAlias;
 	}
 	public String getPrivateKeyPassword() {
 		return privateKeyPassword;

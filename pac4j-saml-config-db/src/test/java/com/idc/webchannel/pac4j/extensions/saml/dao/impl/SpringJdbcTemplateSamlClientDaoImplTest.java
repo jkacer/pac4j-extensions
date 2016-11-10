@@ -103,6 +103,9 @@ public class SpringJdbcTemplateSamlClientDaoImplTest {
 
 			// Keystore password
 			assertEquals("KsPwd"+i, cfg.getKeystorePassword());
+			
+			// Alias
+			assertEquals("Alias"+i, cfg.getKeystoreAlias());
 
 			// Private key password
 			assertEquals("PrKeyPwd"+i, cfg.getPrivateKeyPassword());
@@ -144,6 +147,9 @@ public class SpringJdbcTemplateSamlClientDaoImplTest {
 
 		// Keystore password
 		assertEquals("KsPwd5", cfg.getKeystorePassword());
+
+		// Alias
+		assertEquals("Alias5", cfg.getKeystoreAlias());
 
 		// Private key password
 		assertEquals("PrKeyPwd5", cfg.getPrivateKeyPassword());

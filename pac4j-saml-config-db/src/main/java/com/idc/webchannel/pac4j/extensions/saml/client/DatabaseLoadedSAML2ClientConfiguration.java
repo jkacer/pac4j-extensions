@@ -117,7 +117,7 @@ public class DatabaseLoadedSAML2ClientConfiguration extends SAML2ClientConfigura
 		setKeystoreType(KeyStore.getDefaultType());
 		keystoreBinaryData = loaded.getKeystoreBinaryData();
 		setKeystorePassword(loaded.getKeystorePassword());
-		setKeystoreAlias(""); // TODO: This is missing in our DB config!!!
+		setKeystoreAlias(loaded.getKeystoreAlias());
 		setPrivateKeyPassword(loaded.getPrivateKeyPassword());
 		setMaximumAuthenticationLifetime(loaded.getMaximumAuthenticationLifetime());
 		setServiceProviderEntityId(loaded.getServiceProviderEntityId());

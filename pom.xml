@@ -208,10 +208,44 @@
 					<version>2.10.4</version>
 				</plugin>
 
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.7</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.9</version>
+				</plugin>
+
 			</plugins>
 
 		</pluginManagement>
 
 	</build>
+
+
+	<reporting>
+
+		<plugins>
+
+			<!-- Generate PMD + CPD report when building the project site -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.7</version>
+				<configuration>
+					<skipEmptyReport>false</skipEmptyReport>
+					<linkXref>true</linkXref>
+					<includeTests>true</includeTests>
+					<printFailingErrors>true</printFailingErrors>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</reporting>
 	
 </project>

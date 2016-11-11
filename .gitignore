@@ -12,3 +12,6 @@ buildNumber.properties
 .classpath
 .project
 .settings/
+# PMD
+.pmd
+.pmdruleset.xml

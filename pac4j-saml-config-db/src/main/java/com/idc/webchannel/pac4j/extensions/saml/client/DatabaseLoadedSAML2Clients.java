@@ -39,7 +39,6 @@ public class DatabaseLoadedSAML2Clients extends Clients {
 	public DatabaseLoadedSAML2Clients(final SamlClientDao samlClientDao) {
 		super();
 		this.samlClientDao = samlClientDao;
-		//this.dynamicallyLoadedClients = new ArrayList<>();
 	}
 	
 	

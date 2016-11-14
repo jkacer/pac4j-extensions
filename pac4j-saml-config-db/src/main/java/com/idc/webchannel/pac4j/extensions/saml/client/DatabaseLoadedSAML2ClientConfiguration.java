@@ -111,7 +111,13 @@ public class DatabaseLoadedSAML2ClientConfiguration extends SAML2ClientConfigura
 		
 		// If everything is OK, we will set the loaded values to the configuration object (itself).
 		setClientName(clientName);
-		setDestinationBindingType(loaded.getDestinationBindingType());
+		
+		// Optional value with a default - only set if not empty
+		final String destBinding = loaded.getDestinationBindingType();
+		if (StringUtils.isNotBlank(destBinding)) {
+			setDestinationBindingType(destBinding);
+		}
+		
 		setIdentityProviderEntityId(loaded.getIdentityProviderEntityId());
 		this.identityProviderMetadata = loaded.getIdentityProviderMetadata();
 		setKeystoreType(KeyStore.getDefaultType());

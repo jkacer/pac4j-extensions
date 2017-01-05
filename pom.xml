@@ -14,6 +14,7 @@
 	<packaging>pom</packaging>
 	<version>1.9.0-SNAPSHOT</version>
 	<name>IDC extensions to the PAC4J library</name>
+	<description>A set of extensions to the PAC4J library. Developed by IDC and released as open source.</description>
 	<url>https://github.com/jkacer/pac4j-extensions</url>
 
 
@@ -66,6 +67,7 @@
 	</properties>
 	
 
+	<!-- - - - - - - - - - - - - - - - - - - - - Dependency Management - - - - - - - - - - - - - -->
 	<dependencyManagement>
 		<dependencies>
 
@@ -145,9 +147,25 @@
 	</dependencyManagement>
 
 
+	<!-- - - - - - - - - - - - - - - - - - - - - Distribution Management - - - - - - - - - - - - - -->
+	<!-- To deploy to the OSSRH Nexus Repository Manager with the Nexus Staging Maven plugin -->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+
+	<!-- - - - - - - - - - - - - - - - - - - - - Build - - - - - - - - - - - - - - - - - - - - - - -->
 	<build>
 		<plugins>
 
+			<!-- To define language versions and other source properties. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -158,30 +176,35 @@
 				</configuration>
 			</plugin>
 
+			<!--
+			To deploy to the OSSRH Nexus Repository Manager with the Nexus Staging Maven plugin.
+			Server "ossrh" must be defined in Maven settings.xml.
+			-->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
 			</plugin>
 
+			<!--
+			Configuration of the Release plugin: Redefining the "release" profile.
+			The configuration for the Maven Release plugin should include disabling the "release" profile that is part of the Maven Super POM,
+			since we are using our own profile, and specify the "deploy" goal together with the activation of our "release" profile.
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<useReleaseProfile>false</useReleaseProfile>
+					<releaseProfiles>release</releaseProfiles>
+					<goals>deploy</goals>
+				</configuration>
 			</plugin>
 
 		</plugins>
@@ -220,6 +243,24 @@
 					<version>2.9</version>
 				</plugin>
 
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.7</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.6</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
+
 			</plugins>
 
 		</pluginManagement>
@@ -227,6 +268,7 @@
 	</build>
 
 
+	<!-- - - - - - - - - - - - - - - - - - - - - Reporting - - - - - - - - - - - - - - - - - - - - -->
 	<reporting>
 
 		<plugins>
@@ -247,5 +289,70 @@
 		</plugins>
 
 	</reporting>
+
+
+	<!-- - - - - - - - - - - - - - - - - - - - - Profiles - - - - - - - - - - - - - - - - - - - - -->
+	<profiles>
+
+		<!--
+		Profile for releases. Automatically selected by maven-release-plugin if a release is performed.
+		We generate JARs with sources, JARs with JavaDoc and sign all artifacts.
+		-->
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+
+					<!-- To generate source JARs. -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+		
+					<!-- To generate JavaDoc JARs. -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!--
+					To sign the generated artifacts using GPG.
+					GPG configuration in settings.xml - profile "ossrh".
+					-->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
 	
 </project>

@@ -19,6 +19,7 @@
 	<artifactId>pac4j-saml-config-db</artifactId>
 	<packaging>jar</packaging>
 	<name>PAC4J Extension - Database config of SAML client</name>
+	<description>This PAC4J extension allows you to define SAML2 clients in a relational database. You can easily add, remove or modify your SAML2 clients without redeploying the application.</description>
 
 
 	<dependencies>

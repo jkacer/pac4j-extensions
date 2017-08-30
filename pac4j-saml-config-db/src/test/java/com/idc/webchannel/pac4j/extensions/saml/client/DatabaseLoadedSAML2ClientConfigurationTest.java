@@ -15,18 +15,21 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.io.Resource;
+import org.springframework.core.io.Resource;
 
 import com.idc.webchannel.pac4j.extensions.saml.dao.api.DbLoadedSamlClientConfigurationDto;
 import com.idc.webchannel.pac4j.extensions.saml.dao.api.SamlClientDao;
@@ -56,11 +59,11 @@ public class DatabaseLoadedSAML2ClientConfigurationTest {
 	private WebContext webContextMock;
 	
 	private SamlClientDao samlClientDaoMock;
-	
-	
+
+
 	// ------------------------------------------------------------------------------------------------------------------------------------
-	
-	
+
+
 	@Before
 	public void setUp() throws IOException {
 		samlClientDaoMock = createSamlClientDaoMock();
@@ -74,18 +77,18 @@ public class DatabaseLoadedSAML2ClientConfigurationTest {
 		List<DbLoadedSamlClientConfigurationDto> clients = new ArrayList<>();
 		DbLoadedSamlClientConfigurationDto client0 = clientDto(0);
 		clients.add(client0);
-		
+
 		SamlClientDao scd = mock(SamlClientDao.class);
 		when(scd.loadClientNames()).thenReturn(Arrays.asList(CLIENT_NAMES));
 		when(scd.loadAllClients()).thenReturn(clients);
 		when(scd.loadClient(CLIENT_NAMES[0])).thenReturn(client0);
 		return scd;
 	}
-	
-	
+
+
 	private DbLoadedSamlClientConfigurationDto clientDto(int index) throws IOException {
 		DbLoadedSamlClientConfigurationDto dto = new DbLoadedSamlClientConfigurationDto();
-		
+
 		dto.setClientName(CLIENT_NAMES[index]);
 		dto.setEnvironment(ENVIRONMENT);
 		dto.setKeystoreBinaryData(loadKeystoreBinaryData(index));
@@ -97,7 +100,7 @@ public class DatabaseLoadedSAML2ClientConfigurationTest {
 		dto.setServiceProviderEntityId(SP_ENTITY_IDS[index]);
 		dto.setMaximumAuthenticationLifetime(MAX_AUTH_LIFETIMES[index]);
 		dto.setDestinationBindingType(DEST_BINDING_TYPES[index]);
-		
+
 		return dto;
 	}
 
@@ -124,67 +127,77 @@ public class DatabaseLoadedSAML2ClientConfigurationTest {
 	@Test
 	public void basicGettersWork() {
 		assertEquals(CLIENT_NAMES[0], configurationUnderTest.getClientName());
-		assertNotNull(configurationUnderTest.getKeyStore());
 		assertNotNull(configurationUnderTest.getKeystoreResource());
 		assertNotNull(configurationUnderTest.getIdentityProviderMetadataResource());
-		
+
 		assertEquals(DEST_BINDING_TYPES[0], configurationUnderTest.getDestinationBindingType());
 		assertEquals(IDP_ENTITY_IDS[0], configurationUnderTest.getIdentityProviderEntityId());
-		assertNull(configurationUnderTest.getIdentityProviderMetadataPath());
 		assertEquals(KEYSTORE_ALIASES[0], configurationUnderTest.getKeyStoreAlias());
 		assertEquals(KEYSTORE_PASSWORDS[0], configurationUnderTest.getKeystorePassword());
-		assertNull(configurationUnderTest.getKeystorePath());
 		assertEquals(KeyStore.getDefaultType(), configurationUnderTest.getKeyStoreType());
 		assertEquals(MAX_AUTH_LIFETIMES[0], configurationUnderTest.getMaximumAuthenticationLifetime());
 		assertEquals(SP_ENTITY_IDS[0], configurationUnderTest.getServiceProviderEntityId());
 	}
-	
-	
+
+
 	@Test
-	public void keystoreIsOk() throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
-		KeyStore ks = configurationUnderTest.getKeyStore();
+	public void keystoreIsOk()
+			throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException, CertificateException, IOException {
+		Resource keystoreRes = configurationUnderTest.getKeystoreResource();
+		assertNotNull(keystoreRes);
+
+		KeyStore ks = keystoreFromResource(keystoreRes);
 		assertNotNull(ks);
 
 		Enumeration<String> aliases = ks.aliases();
 		assertTrue(aliases.hasMoreElements());
 		assertEquals(KEYSTORE_ALIASES[0].toUpperCase(), aliases.nextElement().toUpperCase());
-		
+
 		assertTrue(ks.isKeyEntry(KEYSTORE_ALIASES[0]));
 		Key key = ks.getKey(KEYSTORE_ALIASES[0], PRIV_KEY_PASSWORDS[0].toCharArray());
 		assertTrue(key instanceof PrivateKey);
-		
+
 		Certificate cert = ks.getCertificate(KEYSTORE_ALIASES[0]);
 		assertNotNull(cert);
 		PublicKey publicKey = cert.getPublicKey();
 		assertNotNull(publicKey);
 	}
-	
-	
+
+
 	@Test
 	public void keystoreResourceIsOk() throws IOException {
 		Resource r = configurationUnderTest.getKeystoreResource();
 		assertNotNull(r);
-		
+
 		assertTrue(r.exists());
-		assertNull(r.getFile());
 		assertNull(r.getFilename());
 		InputStream is = r.getInputStream();
 		assertNotNull(is);
 		is.close();
 	}
 
-	
+
 	@Test
 	public void idpMetadataProvidederResourceIsOk() throws IOException {
 		Resource r = configurationUnderTest.getIdentityProviderMetadataResource();
 		assertNotNull(r);
-		
+
 		assertTrue(r.exists());
-		assertNull(r.getFile());
 		assertNull(r.getFilename());
 		InputStream is = r.getInputStream();
 		assertNotNull(is);
 		is.close();
 	}
-	
+
+
+	private KeyStore keystoreFromResource(Resource res)
+			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		Security.addProvider(new BouncyCastleProvider());
+
+		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+		final char[] password = KEYSTORE_PASSWORDS[0].toCharArray();
+		ks.load(res.getInputStream(), password);
+
+		return ks;
+	}
 }

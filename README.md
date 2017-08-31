@@ -37,6 +37,9 @@ mvn clean install
 Maven artifacts are built via Travis:
 [![Build Status](https://travis-ci.org/jkacer/pac4j-extensions.png?branch=master)](https://travis-ci.org/jkacer/pac4j-extensions).
 
+The latest released version version is:
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.idc.webchannel.pac4j/extensions/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.idc.webchannel.pac4j/extensions),
+available in the [Maven central repository](http://search.maven.org/#search%7Cga%7C1%7Ccom.idc.webchannel.pac4j)
 
 ## License
 

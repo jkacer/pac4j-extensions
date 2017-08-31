@@ -20,7 +20,7 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.http.AjaxRequestResolver;
-import org.pac4j.core.http.CallbackUrlResolver;
+import org.pac4j.core.http.UrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 
 import com.idc.webchannel.pac4j.extensions.saml.dao.api.SamlClientDao;
@@ -37,13 +37,13 @@ public class DatabaseLoadedSAML2ClientsTest {
     private static final String CALLBACK_URL = "http://myappli/callback";
     private static final String TYPE = "type";
     private static final String KEY = "key";
-    
+
     private DatabaseLoadedSAML2Clients clientsUnderTest;
 
-    
+
     // ------------------------------------------------------------------------------------------------------------------------------------
-    
-    
+
+
     @Before
     public void initTestedClients() {
     	clientsUnderTest = new DatabaseLoadedSAML2Clients(createSamlClientDaoMock());
@@ -175,28 +175,28 @@ public class DatabaseLoadedSAML2ClientsTest {
         clients.init();
     }
 
-    
-    /**
-     * Tests resolvers and authorization generators.
-     */
-    @Test
-    public void testDefineAjaxCallbackResolverAuthGenerator() {
-        final AjaxRequestResolver ajaxRequestResolver = ctx -> false;
-        final CallbackUrlResolver callbackUrlResolver = (url, ctx) -> url;
-        final AuthorizationGenerator authorizationGenerator = profile -> {};
-        
-        clientsUnderTest.setAjaxRequestResolver(ajaxRequestResolver);
-        clientsUnderTest.setCallbackUrlResolver(callbackUrlResolver);
-        clientsUnderTest.addAuthorizationGenerator(authorizationGenerator);
-        clientsUnderTest.init();
-        
-        SAML2Client c = (SAML2Client) clientsUnderTest.findClient("SamlOne");
-        
-        assertEquals(ajaxRequestResolver, c.getAjaxRequestResolver());
-        assertEquals(callbackUrlResolver, c.getCallbackUrlResolver());
-        assertEquals(authorizationGenerator, c.getAuthorizationGenerators().get(0));
-    }
-    
+
+	/**
+	 * Tests resolvers and authorization generators.
+	 */
+	@Test
+	public void testDefineAjaxCallbackResolverAuthGenerator() {
+		final AjaxRequestResolver ajaxRequestResolver = ctx -> false;
+		final UrlResolver urlResolver = (url, ctx) -> url;
+		final AuthorizationGenerator authorizationGenerator = (ctx, profile) -> profile;
+
+		clientsUnderTest.setAjaxRequestResolver(ajaxRequestResolver);
+		clientsUnderTest.setUrlResolver(urlResolver);
+		clientsUnderTest.addAuthorizationGenerator(authorizationGenerator);
+
+		clientsUnderTest.init();
+
+		SAML2Client c = (SAML2Client) clientsUnderTest.findClient("SamlOne");
+
+		assertEquals(ajaxRequestResolver, c.getAjaxRequestResolver());
+		assertEquals(urlResolver, c.getUrlResolver());
+		assertEquals(authorizationGenerator, c.getAuthorizationGenerators().get(0));
+	}    
 
     // ------------------------------------------------------------------------------------------------------------------------------------
    

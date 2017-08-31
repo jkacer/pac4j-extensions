@@ -5,6 +5,7 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.AnonymousCredentials;
 import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.profile.AnonymousProfile;
+import org.pac4j.core.redirect.RedirectAction;
 
 
 /**
@@ -31,6 +32,11 @@ public class YetAnotherClient implements Client<AnonymousCredentials, AnonymousP
 
 	@Override
 	public AnonymousProfile getUserProfile(AnonymousCredentials credentials, WebContext context) throws HttpAction {
+		return null;
+	}
+
+	@Override
+	public RedirectAction getLogoutAction(WebContext wc, AnonymousProfile currentProfile, String targetUrl) {
 		return null;
 	}
 

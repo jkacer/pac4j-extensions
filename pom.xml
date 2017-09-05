@@ -9,7 +9,7 @@
 	<groupId>com.idc.webchannel.pac4j</groupId>
 	<artifactId>extensions</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0.0</version>
+	<version>2.0.1-SNAPSHOT</version>
 	<name>IDC extensions to the PAC4J library</name>
 	<description>A set of extensions to the PAC4J library. Developed by IDC and released as open source.</description>
 	<url>https://github.com/jkacer/pac4j-extensions</url>
@@ -28,7 +28,7 @@
 		<url>https://github.com/jkacer/pac4j-extensions.git</url>
 		<connection>scm:git:git@github.com:jkacer/pac4j-extensions.git</connection>
 		<developerConnection>scm:git:git@github.com:jkacer/pac4j-extensions.git</developerConnection>
-	  <tag>2.0.0</tag>
+	  <tag>HEAD</tag>
   </scm>
 	
 
